@@ -29,7 +29,7 @@ foreach ($app in $bloatware) {
     Get-AppxProvisionedPackage -Online | where {$_.DisplayName -like $app} | Remove-AppxProvisionedPackage -Online
 }
 
-# Install office if a CDN is provided
+# Install Microsoft Office if a CDN is provided
 if($env:OfficeCDN -ne $null) {
     try {
         $webClient = New-Object System.Net.WebClient
