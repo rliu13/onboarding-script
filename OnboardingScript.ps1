@@ -37,7 +37,7 @@ if($env:OfficeCDN -ne $null) {
         # Use the user's temp directory
         $tempFolder = [System.IO.Path]::GetTempPath()
         # $destination = [System.IO.Path]::Combine($tempFolder, "Office.img")
-	    $destination = Join-Path -Path $tempFolder -ChildPath "MicrosoftOffice.img"
+	$destination = Join-Path -Path $tempFolder -ChildPath "MicrosoftOffice.img"
         $webClient.DownloadFile($env:OfficeCDN, $destination)
 
         # Mount the image
