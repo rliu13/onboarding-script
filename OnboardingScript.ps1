@@ -1,4 +1,7 @@
-﻿# Set local support account's password to never expire
+# Get CDN url
+$cdn = $env:OfficeCDN
+
+# Set local support account's password to never expire
 Set-LocalUser -Name "Support" -PasswordNeverExpires:$true
 
 # Set time zone to Eastern Standard Time 
@@ -21,24 +24,27 @@ $bloatware = @(
     'Microsoft.ZuneVideo'
     'Microsoft.BingNews'
     'Microsoft.BingWeather'
+    'AD2F1837.HPDesktopSupportUtilities'
+    'AppUp.IntelGraphicsExperience'
+    'AppUp.IntelManagementandSecurityStatus'
+    'RealtekSemiconductorCorp.HPAudioControl'
 )
 
 # Remove bloatware
 foreach ($app in $bloatware) {
-    Get-AppxPackage -Name $app | Remove-AppxPackage
+    Get-AppxPackage -Name $app -AllUsers | Remove-AppxPackage -AllUsers
     Get-AppxProvisionedPackage -Online | where {$_.DisplayName -like $app} | Remove-AppxProvisionedPackage -Online
 }
 
-# Install Microsoft Office if a CDN is provided
-if($env:OfficeCDN -ne $null) {
+# Install office if a CDN link is provided
+if($cdn -ne $null) {
     try {
         $webClient = New-Object System.Net.WebClient
 
-        # Use the user's temp directory
+        # Use temp folder
         $tempFolder = [System.IO.Path]::GetTempPath()
-        # $destination = [System.IO.Path]::Combine($tempFolder, "Office.img")
-	$destination = Join-Path -Path $tempFolder -ChildPath "MicrosoftOffice.img"
-        $webClient.DownloadFile($env:OfficeCDN, $destination)
+	    $destination = Join-Path -Path $tempFolder -ChildPath "Office.img"
+        $webClient.DownloadFile($cdn, $destination)
 
         # Mount the image
         $mountResult = Mount-DiskImage -ImagePath $destination -PassThru
@@ -51,14 +57,13 @@ if($env:OfficeCDN -ne $null) {
         # Dismount image
         Dismount-DiskImage -ImagePath $destination
 
-        # Delete file
+        # Clean up temp folder
         Remove-Item -Path $destination
     }
     catch [System.Net.WebException],[System.IO.IOException] {
-    Write-Error "Unable to download Microsoft Office from $($env:OfficeCDN)"
+    Write-Error "Unable to download Microsoft Office from $($cdn)"
     }
     catch {
     Write-Error "An unresolved error occurred"
     }
 }
-
